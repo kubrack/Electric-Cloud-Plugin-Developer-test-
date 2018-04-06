@@ -21,3 +21,4 @@ ok(system("./deployer.pl -a check >/dev/null") != 0, "--application required");
 my ($fh, $filename) = tempfile();
 ok(system("./deployer.pl -a save -c $filename -u tomcat -p topsecret>/dev/null") == 0, "save config");
 system("cat $filename");
+unlink($filename);
