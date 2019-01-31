@@ -1,74 +1,106 @@
-# Electric-Cloud-Plugin-Developer-test-
-Electric Cloud Plugin Developer test 
+# Overview
+Module and CLI app which implements:
+* Saving/deleting of the configuration
+* Deploy/undeploy of an application
+* Start/Stop of the application
+* Check deployed application
+for Tomcat application server.
 
-Name:
-    deployer.pl - tool to deploy/undeploy/start/stop/check Apache Tomcat
-    application using the Tomcat Manager
+Deploy/undeploy - let’s assume we’ve got a simple application somewhere on the disk (so we have the path). We want it to be deployed on the application server.
 
-Usage:
-    deployer.pl --config configfile --action deploy --webapp
-    /path/to/webapp.war
+In general, module implements the following pipeline:
+Deploy application
+Start application 
+Check if application works and responses
+Undeploy application
+Check if application no longer available.
 
-    deployer.pl --host 127.0.0.1:8080 --user tomcat --password topsecret
-    --action start --webapp webapp.war
+# Usage
+```
+deployer.pl --config configfile --action deploy --webapp /path/to/webapp.war
 
-    deployer.pl --host localhost --user tomcat --password topsecret --action
-    stop --webapp webapp.war
+deployer.pl --host 127.0.0.1:8080 --user tomcat --password topsecret --action start --webapp webapp.war
 
-        - tomcat application manipulation. User/password could be passed as option or read from appropriate host section.
+deployer.pl --host localhost --user tomcat --password topsecret --action stop --webapp webapp.war
 
-    deployer.pl --config configfile --host 127.0.0.1:8080 --user tomcat
-    --password topsecret --action save
+    - tomcat application manipulation. User/password could be passed as option or read from appropriate host section.
 
-        - save user, password parameters to configfile section [127.0.0.1:8080]
+deployer.pl --config configfile --host 127.0.0.1:8080 --user tomcat --password topsecret --action save
 
-    deployer.pl --config configfile --host 127.0.0.1:8080 --action delete
+    - save user, password parameters to configfile section [127.0.0.1:8080]
 
-        - delete section [127.0.0.1:8080] from configfile.
+deployer.pl --config configfile --host 127.0.0.1:8080 --action delete
 
-Options:
-    --action|-a
-        MANDATORY; Action, one of:
+    - delete section [127.0.0.1:8080] from configfile.
+```
+### or
+```
+use Deployer()
 
-        deploy
-        undeploy
-        start
-        stop
-        check
-                - tomcat application manipulation, --webapp, --user, --password required as option or via config file.
+my $deployer = Deployer->new(
+    {
+        config => $config,
+        user => $user,
+        password => $password,
+        host => $host,
+        application => $application,
+    }
+);
 
-        save
-        delete
-                - config file section manipulation, --config required.
+if ( $deployer->can($action) ) {
+    $deployer->$action();
+} else {
+    die "Unknown action $action";
+}
+```
 
-    --config|-c
-        Config file name. User, password, application options per host could
-        be defined here.
+# Documentation
+See POD.
 
-        Default config section is [127.0.0.1:8080].
+# CLI options
+```
+ --action|-a
+     MANDATORY; Action, one of:
 
-        Config example:
+     deploy
+     undeploy
+     start
+     stop
+     check
+             - tomcat application manipulation, --webapp, --user, --password required as option or via config file.
 
-        [my.app.server]
-        user = alice
-        password = 111
-        webapp = default_app.war
+     save
+     delete
+             - config file section manipulation, --config required.
 
-        [127.0.0.1:8080]
-        user = tomcat
-        password = topsecret
+ --config|-c
+     Config file name. User, password, application options per host could
+     be defined here.
 
-    --host|-h
-        Host[:port], default localhost:8080, default port 8080 if omitted.
-        If --config also passed, points to config section.
+     Default config section is [127.0.0.1:8080].
 
-    --user|-u
-        User for Tomcat Manager, could be passed via config.
+     Config example:
 
-    --passwd|-p
-        Password for Tomcat Manager user, could be passed via config.
+     [my.app.server]
+     user = alice
+     password = 111
+     webapp = default_app.war
 
-    --webapp|-w
-        Tomcat application, could be passed via config.
+     [127.0.0.1:8080]
+     user = tomcat
+     password = topsecret
 
+ --host|-h
+     Host[:port], default localhost:8080, default port 8080 if omitted.
+     If --config also passed, points to config section.
+
+ --user|-u
+     User for Tomcat Manager, could be passed via config.
+
+ --passwd|-p
+     Password for Tomcat Manager user, could be passed via config.
+
+ --webapp|-w
+     Tomcat application, could be passed via config.
+```
 
